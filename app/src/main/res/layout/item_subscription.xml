@@ -51,6 +51,17 @@
                     android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"/>
         </LinearLayout>
+
+        <ImageView
+                android:id="@+id/ivMenu"
+                android:layout_width="43dp"
+                android:layout_height="38dp"
+                android:src="@drawable/dots_vertical"
+                android:contentDescription="Menu"
+                android:padding="8dp"
+                android:layout_gravity="end"
+                android:clickable="true"
+                android:focusable="true"/>
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
