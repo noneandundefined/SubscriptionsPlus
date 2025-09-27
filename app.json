@@ -18,7 +18,8 @@
 			},
 			"edgeToEdgeEnabled": true,
 			"predictiveBackGestureEnabled": false,
-			"package": "com.anonymous.SubscriptionPlus"
+			"package": "com.noneandundefined.SubscriptionPlus",
+			"versionCode": 1
 		},
 		"web": {
 			"output": "static",
@@ -48,6 +49,14 @@
 			"router": {},
 			"eas": {
 				"projectId": "9013a758-c6e2-481c-a2c6-c9a525275d24"
+			}
+		},
+		"build": {
+			"preview": {
+				"distribution": "internal",
+				"android": {
+					"buildType": "apk"
+				}
 			}
 		}
 	}
