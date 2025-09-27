@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
@@ -7,15 +8,15 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 2. Start the app
 
-   ```bash
-   npx expo start
-   ```
+    ```bash
+    npx expo start
+    ```
 
 In the output, you'll find options to open the app in a
 
@@ -48,25 +49,28 @@ To learn more about developing your project with Expo, look at the following res
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-=======
+- # [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
 # Subscription+
 
 `Subscription+` this is a convenient app for managing your subscriptions and recurring payments.
 
 ## Features
+
 - Add subscriptions with name, price, and payment date
 - Display all active subscriptions in a structured list
 - Edit and delete subscriptions when needed
 - Store data locally in JSON without internet connection
 
 ## Technical Requirements
- | Parameter         | Value                     |
- |-------------------|---------------------------|
- | Operating System  | Android 8.0 (Oreo) or higher |
+
+| Parameter        | Value                        |
+| ---------------- | ---------------------------- |
+| Operating System | Android 8.0 (Oreo) or higher |
 
 ## Installation
 
 The latest release .apk file is available in the [Releases](https://github.com/noneandundefined/SubscriptionsPlus/releases/tag/v1.0.0) section of this repository.
 Download and install it on your Android device to start using the app.
->>>>>>> c0cb97a11f48960fa17f3b8cafb9f81bfe47193b
+
+> > > > > > > c0cb97a11f48960fa17f3b8cafb9f81bfe47193b

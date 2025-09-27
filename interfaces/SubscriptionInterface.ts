@@ -1,5 +1,5 @@
 export interface Subscription {
-	id: string;
+	id: number;
 	name: string;
 	price: number;
 	date_pay: string;
