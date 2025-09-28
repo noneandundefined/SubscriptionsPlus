@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { EventRegister } from 'react-native-event-listeners';
 
 import * as Notifications from 'expo-notifications';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -63,28 +64,47 @@ export default function HomeScreen() {
 		};
 	}, []);
 
+	useEffect(() => {
+		const handleEdited = (editedSub: Subscription) => {
+			setSubscriptions(prev =>
+				prev.map(sub => (sub.id === editedSub.id ? editedSub : sub))
+			);
+		};
+
+		const listenerId = EventRegister.addEventListener('subscriptionEddited', handleEdited);
+
+		return () => {
+			if (typeof listenerId === 'string') {
+				EventRegister.removeEventListener(listenerId);
+			}
+		};
+	}, []);
+
 	const handleDelete = (id: number) => {
 		setSubscriptions((prev) => prev.filter((sub) => sub.id !== id));
 	};
 
 	return (
-		<FlatList
-			data={sortedSubscriptions}
-			keyExtractor={(item) => item.id.toString()}
-			renderItem={({ item }) => (
-				<SubscriptionItem
-					id={item.id}
-					name={item.name}
-					price={item.price}
-					date_pay={item.date_pay}
-					date_notify_one={item.date_notify_one}
-					date_notify_two={item.date_notify_two}
-					date_notify_three={item.date_notify_three}
-					onDelete={() => handleDelete(item.id)}
-				/>
-			)}
-			ListEmptyComponent={<SubscriptionEmpty />}
-		/>
+		<SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+			<FlatList
+				data={sortedSubscriptions}
+				keyExtractor={(item) => item.id.toString()}
+				renderItem={({ item }) => (
+					<SubscriptionItem
+						id={item.id}
+						name={item.name}
+						price={item.price}
+						date_pay={item.date_pay}
+						date_notify_one={item.date_notify_one}
+						date_notify_two={item.date_notify_two}
+						date_notify_three={item.date_notify_three}
+						onDelete={() => handleDelete(item.id)}
+					/>
+				)}
+				ListEmptyComponent={<SubscriptionEmpty />}
+				contentContainerStyle={{ flexGrow: 1 }}
+			/>
+		</SafeAreaView>
 	);
 }
 

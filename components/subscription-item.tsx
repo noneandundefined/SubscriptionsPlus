@@ -1,6 +1,7 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import SubscriptionService from '@/services/SubscriptionService';
 import { getNextNotifyDays } from '@/utils/DayUtils';
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
@@ -29,12 +30,25 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 	date_notify_three,
 	onDelete,
 }) => {
+	const router = useRouter();
 	const colorScheme = useColorScheme();
 
 	const [advencedVisible, setAdvencedVisible] = useState<boolean>(false);
 
 	const handleEdit = () => {
 		setAdvencedVisible(false);
+		router.push({
+			pathname: '/edit',
+			params: {
+				id,
+				name,
+				price,
+				date_pay,
+				date_notify_one,
+				date_notify_two,
+				date_notify_three,
+			}
+		})
 	};
 
 	const handleDelete = async () => {
@@ -49,7 +63,7 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 			style={[
 				styles.row,
 				{
-					backgroundColor: colorScheme === 'dark' ? '#111' : '#ccc',
+					backgroundColor: colorScheme === 'dark' ? '#222' : '#f9f9f9',
 				},
 			]}
 		>
@@ -58,7 +72,7 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 					style={[
 						styles.date_notify,
 						{
-							backgroundColor: colorScheme === 'dark' ? '#333' : '#999',
+							backgroundColor: colorScheme === 'dark' ? '#333' : '#eee',
 						},
 					]}
 				>
@@ -70,7 +84,7 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 				<View>
 					<ThemedText>{name}</ThemedText>
 					<ThemedText style={styles.text_mini}>
-						{new Date(date_pay).toLocaleDateString()} - <b>{price}</b> RUB.
+						{new Date(date_pay).toLocaleDateString()} - {price} RUB.
 					</ThemedText>
 				</View>
 			</View>
@@ -83,48 +97,25 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 				<TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setAdvencedVisible(false)}>
 					<View
 						style={[
-							styles.modalContent,
-							{
-								backgroundColor: colorScheme === 'dark' ? '#111' : '#ccc',
-							},
+							styles.modalContent
 						]}
 					>
 						<TouchableOpacity
 							onPress={handleEdit}
-							style={[
-								styles.modalButton,
-								{
-									borderBottomColor: colorScheme === 'dark' ? '#222' : '#777',
-								},
-							]}
+							style={styles.modalButton}
 						>
 							<Text
-								style={[
-									styles.modalText,
-									{
-										color: colorScheme === 'dark' ? '#444' : '#777',
-									},
-								]}
+								style={styles.modalText}
 							>
 								Edit
 							</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
 							onPress={handleDelete}
-							style={[
-								styles.modalButton,
-								{
-									borderBottomColor: colorScheme === 'dark' ? '#222' : '#777',
-								},
-							]}
+							style={styles.modalButton}
 						>
 							<Text
-								style={[
-									styles.modalText,
-									{
-										color: colorScheme === 'dark' ? '#444' : '#777',
-									},
-								]}
+								style={styles.modalText}
 							>
 								Delete
 							</Text>
@@ -156,8 +147,8 @@ const styles = StyleSheet.create({
 		color: '#888',
 	},
 	date_notify: {
-		width: 40,
-		height: 40,
+		width: 50,
+		height: 50,
 		alignItems: 'center',
 		justifyContent: 'center',
 		borderRadius: 100,
@@ -174,15 +165,18 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	modalContent: {
-		borderRadius: 8,
+		backgroundColor: "#ccc",
+		borderRadius: 10,
 		padding: 20,
 		minWidth: Math.max(100, screenWidth * 0.8),
 	},
 	modalButton: {
 		paddingVertical: 20,
 		borderBottomWidth: 1,
+		borderBottomColor: "#000"
 	},
 	modalText: {
 		fontSize: 16,
+		color: "#000"
 	},
 });

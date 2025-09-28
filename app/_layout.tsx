@@ -1,8 +1,8 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
 import 'react-native-css-interop';
+import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
@@ -17,7 +17,16 @@ export default function RootLayout() {
 		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 			<Stack>
 				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				<Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+				<Stack.Screen
+					name="edit"
+					options={{
+						presentation: 'formSheet',
+						headerShown: false,
+						contentStyle: {
+							backgroundColor: colorScheme === "dark" ? "#000" : "#eee"
+						}
+					}}
+				/>
 			</Stack>
 			<StatusBar style="auto" />
 		</ThemeProvider>

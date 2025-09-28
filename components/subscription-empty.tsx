@@ -14,7 +14,7 @@ export const SubscriptionEmpty = () => {
 			style={[
 				styles.container,
 				{
-					backgroundColor: colorScheme === 'dark' ? '#111' : '#999',
+					backgroundColor: colorScheme === 'dark' ? '#111' : '#fff',
 				},
 			]}
 		>
@@ -25,7 +25,9 @@ export const SubscriptionEmpty = () => {
 						width: boxWidth,
 						height: boxHeight,
 						backgroundColor: colorScheme === 'dark' ? '#111' : '#fff',
-						transform: [{ translateX: -boxWidth / 2 }, { translateY: boxHeight }],
+						borderWidth: 1,
+						borderColor: colorScheme === 'dark' ? '#222' : '#f1f1f1',
+						transform: [{ translateX: -boxWidth / 2 }, { translateY: -boxHeight / 2 }],
 					},
 				]}
 			>
@@ -34,7 +36,7 @@ export const SubscriptionEmpty = () => {
 					style={[
 						styles.text_empty,
 						{
-							color: colorScheme === 'dark' ? '#555' : '#eee',
+							color: colorScheme === 'dark' ? '#555' : '#999',
 						},
 					]}
 				>
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
 	img: {
 		width: 110,
 		height: 110,
-		opacity: 0.2,
+		opacity: 0.45,
 	},
 	text_empty: {
 		textAlign: 'center',

@@ -16,7 +16,7 @@ export default function TabLayout() {
 				headerShown: false,
 				tabBarButton: HapticTab,
 				tabBarStyle: {
-					height: 55,
+					height: 65,
 				},
 			}}
 		>
@@ -34,13 +34,13 @@ export default function TabLayout() {
 					tabBarIcon: ({ color }) => <IconSymbol size={28} name="add" color={color} />,
 				}}
 			/>
-			<Tabs.Screen
+			{/* <Tabs.Screen
 				name="settings"
 				options={{
 					title: 'Settings',
 					tabBarIcon: ({ color }) => <IconSymbol size={28} name="settings.fill" color={color} />,
 				}}
-			/>
+			/> */}
 		</Tabs>
 	);
 }

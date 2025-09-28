@@ -5,8 +5,9 @@ import { Subscription } from '@/interfaces/SubscriptionInterface';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Alert, Platform, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import subscriptionService from '@/services/SubscriptionService';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';
@@ -110,8 +111,8 @@ const AddScreen = () => {
 		<SafeAreaView style={styles.container}>
 			{showConfetti && <ConfettiCannon count={120} origin={{ x: -10, y: 0 }} fadeOut />}
 
-			<TouchableOpacity onPress={handleSaveSub}>
-				<ThemedText style={styles.add_sub}>Add Sub</ThemedText>
+			<TouchableOpacity onPress={handleSaveSub} style={styles.add_sub}>
+				<ThemedText>Add Sub</ThemedText>
 			</TouchableOpacity>
 
 			<View style={styles.content_add_container}>
@@ -160,14 +161,14 @@ const AddScreen = () => {
 							<Text
 								style={[
 									{
-										color: colorScheme === 'dark' ? '#888' : '#222',
+										color: '#888',
 									},
 								]}
 							>
 								{subscription.date_pay ? new Date(subscription.date_pay).toLocaleDateString() : 'None'}
 							</Text>
 
-							<IconSymbol size={28} name="keyboard-arrow-right" color={colorScheme === 'dark' ? '#888' : '#222'} />
+							<IconSymbol size={28} name="keyboard-arrow-right" color="#888" />
 						</View>
 					</View>
 				</TouchableOpacity>
@@ -180,10 +181,10 @@ const AddScreen = () => {
 							</ThemedText>
 
 							<View style={styles.choose_param_row}>
-								<Text style={{ color: colorScheme === 'dark' ? '#888' : '#222' }}>
+								<Text style={{ color: '#888' }}>
 									{subscription[field] ? new Date(subscription[field] as string).toLocaleDateString() : 'None'}
 								</Text>
-								<IconSymbol size={28} name="keyboard-arrow-right" color={colorScheme === 'dark' ? '#888' : '#222'} />
+								<IconSymbol size={28} name="keyboard-arrow-right" color="#888" />
 							</View>
 						</View>
 					</TouchableOpacity>
@@ -248,9 +249,9 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	add_sub: {
-		position: 'fixed',
-		top: 15,
-		right: 20,
+		position: 'absolute',
+		top: 25,
+		right: 0,
 		cursor: 'pointer',
 	},
 	inputs: {
