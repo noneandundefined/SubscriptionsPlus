@@ -3,14 +3,6 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 export const scheduleSubscriptionNotifications = async (subscription: Subscription) => {
-	if (Platform.OS === 'android') {
-		await Notifications.setNotificationChannelAsync('subscriptions', {
-			name: 'Subscription reminders',
-			importance: Notifications.AndroidImportance.HIGH,
-			sound: 'default',
-		});
-	}
-
 	const notifyFields: (keyof Subscription)[] = ['date_notify_one', 'date_notify_two', 'date_notify_three'];
 
 	const now = new Date();

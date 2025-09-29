@@ -135,6 +135,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 25,
 		paddingHorizontal: 15,
 		margin: 4,
+		marginHorizontal: 10,
 		borderRadius: 10,
 	},
 	row_left: {

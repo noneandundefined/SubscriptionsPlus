@@ -18,6 +18,8 @@
 			},
 			"edgeToEdgeEnabled": true,
 			"predictiveBackGestureEnabled": false,
+			"permissions": ["NOTIFICATIONS", "WAKE_LOCK"],
+			"useNextNotificationsApi": true,
 			"package": "com.noneandundefined.SubscriptionPlus",
 			"versionCode": 1
 		},

@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet } from 'react-native';
+import { Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { SubscriptionEmpty } from '@/components/subscription-empty';
 import { SubscriptionItem } from '@/components/subscription-item';
@@ -8,10 +8,16 @@ import { getNextPaymentDate } from '@/utils/DayUtils';
 import { useEffect, useState } from 'react';
 import { EventRegister } from 'react-native-event-listeners';
 
+import { ThemedText } from '@/components/themed-text';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import { getGreeting } from '@/utils/GreetingUtils';
 import * as Notifications from 'expo-notifications';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+const { width: screenWidth } = Dimensions.get('window');
+
 export default function HomeScreen() {
+	const colorScheme = useColorScheme();
 	const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
 
 	const sortedSubscriptions = [...subscriptions].sort((a, b) => {
@@ -86,6 +92,30 @@ export default function HomeScreen() {
 
 	return (
 		<SafeAreaView style={{ flex: 1 }} edges={['top', 'left', 'right']}>
+			<View style={styles.text_hi_view}>
+				<ThemedText style={styles.text_hi_title}>
+					{getGreeting()}
+				</ThemedText>
+				<Text style={[
+					styles.text_hi_desc,
+					{
+						color: colorScheme === "dark" ? "#999" : "#999"
+					}
+				]}>
+					time to manage your subscriptions.
+				</Text>
+				<View style={[
+					styles.total_price,
+					{
+						backgroundColor: colorScheme === "dark" ? "#222" : "#fff"
+					}
+				]}>
+					<ThemedText>
+						{subscriptions.reduce((sum, sub) => sum + sub.price, 0)}
+					</ThemedText>
+				</View>
+			</View>
+
 			<FlatList
 				data={sortedSubscriptions}
 				keyExtractor={(item) => item.id.toString()}
@@ -109,6 +139,29 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+	text_hi_view: {
+		maxWidth: Math.min(screenWidth * 0.6, 300),
+		flexDirection: "column",
+		gap: 7,
+		marginVertical: 30,
+		marginLeft: 12
+	},
+	text_hi_title: {
+		fontSize: 35,
+		fontWeight: 500,
+		letterSpacing: 0.6,
+		lineHeight: 40,
+		includeFontPadding: true
+	},
+	text_hi_desc: {
+		letterSpacing: 0.4,
+		fontSize: 25,
+		fontWeight: 400,
+	},
+	total_price: {
+		padding: 10,
+		borderRadius: 20
+	},
 	titleContainer: {
 		flexDirection: 'row',
 		alignItems: 'center',
