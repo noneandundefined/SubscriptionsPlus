@@ -1,6 +1,7 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import SubscriptionService from '@/services/SubscriptionService';
 import { getNextNotifyDays } from '@/utils/DayUtils';
+import { capitalizeFirstLetter } from '@/utils/StringUtils';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -47,8 +48,8 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 				date_notify_one,
 				date_notify_two,
 				date_notify_three,
-			}
-		})
+			},
+		});
 	};
 
 	const handleDelete = async () => {
@@ -59,71 +60,116 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 	};
 
 	return (
-		<View
-			style={[
-				styles.row,
-				{
-					backgroundColor: colorScheme === 'dark' ? '#222' : '#f9f9f9',
-				},
-			]}
-		>
-			<View style={styles.row_left}>
-				<View
-					style={[
-						styles.date_notify,
-						{
-							backgroundColor: colorScheme === 'dark' ? '#333' : '#eee',
-						},
-					]}
-				>
-					<ThemedText style={styles.date_notify_text}>
-						{getNextNotifyDays(date_notify_one, date_notify_two, date_notify_three)}
-					</ThemedText>
+		<>
+			<TouchableOpacity
+				activeOpacity={0.7}
+				style={[
+					styles.row,
+					{
+						backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+						borderWidth: 1,
+						borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+					},
+				]}
+			>
+				<View style={styles.row_left}>
+					<View
+						style={[
+							styles.date_notify,
+							{
+								backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+								borderWidth: 1,
+								borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+							},
+						]}
+					>
+						<ThemedText style={styles.date_notify_text}>
+							{getNextNotifyDays(date_notify_one, date_notify_two, date_notify_three)
+								? `${getNextNotifyDays(date_notify_one, date_notify_two, date_notify_three)}d`
+								: '3d'}
+						</ThemedText>
+					</View>
+
+					<View>
+						<ThemedText style={{ fontSize: 17 }}>{capitalizeFirstLetter(name)}</ThemedText>
+						<ThemedText style={styles.text_mini}>
+							{new Date(date_pay).toLocaleDateString()} - {price} RUB.
+						</ThemedText>
+					</View>
 				</View>
 
-				<View>
-					<ThemedText>{name}</ThemedText>
-					<ThemedText style={styles.text_mini}>
-						{new Date(date_pay).toLocaleDateString()} - {price} RUB.
-					</ThemedText>
-				</View>
-			</View>
-
-			<TouchableOpacity onPress={() => setAdvencedVisible(true)}>
-				<IconSymbol size={22} name="menu" color="#888" />
+				<TouchableOpacity onPress={() => setAdvencedVisible(true)}>
+					<IconSymbol size={25} name="menu" color={colorScheme === 'dark' ? '#525252ff' : '#b4b4b4ff'} />
+				</TouchableOpacity>
 			</TouchableOpacity>
 
 			<Modal transparent animationType="fade" visible={advencedVisible} onRequestClose={() => setAdvencedVisible(false)}>
 				<TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setAdvencedVisible(false)}>
 					<View
 						style={[
-							styles.modalContent
+							styles.modalContent,
+							{
+								backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+								borderWidth: 1,
+								borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+							},
 						]}
 					>
+						<ThemedText style={{ fontSize: 14, marginBottom: 10 }}>Subscription: {capitalizeFirstLetter(name)}</ThemedText>
+
 						<TouchableOpacity
 							onPress={handleEdit}
-							style={styles.modalButton}
+							style={[
+								styles.modalButton,
+								{
+									flexDirection: 'row',
+									alignItems: 'center',
+									gap: 10,
+								},
+							]}
 						>
+							<IconSymbol size={25} name="edit" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+
 							<Text
-								style={styles.modalText}
+								style={[
+									styles.modalText,
+									{
+										color: colorScheme === 'dark' ? '#fff' : '#000',
+									},
+								]}
 							>
-								Edit
+								Edit subscription
 							</Text>
 						</TouchableOpacity>
+
 						<TouchableOpacity
 							onPress={handleDelete}
-							style={styles.modalButton}
+							style={[
+								styles.modalButton,
+								{
+									flexDirection: 'row',
+									alignItems: 'center',
+									gap: 10,
+								},
+							]}
 						>
+							<IconSymbol size={25} name="delete" color="#c50000ff" />
+
 							<Text
-								style={styles.modalText}
+								style={[
+									styles.modalText,
+									{
+										color: '#c50000ff',
+									},
+								]}
 							>
-								Delete
+								Delete subscription
 							</Text>
 						</TouchableOpacity>
 					</View>
 				</TouchableOpacity>
 			</Modal>
-		</View>
+		</>
 	);
 };
 
@@ -132,11 +178,12 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		paddingVertical: 25,
+		paddingVertical: 20,
 		paddingHorizontal: 15,
 		margin: 4,
 		marginHorizontal: 10,
-		borderRadius: 10,
+		borderRadius: 25,
+		borderWidth: 1,
 	},
 	row_left: {
 		flexDirection: 'row',
@@ -148,8 +195,8 @@ const styles = StyleSheet.create({
 		color: '#888',
 	},
 	date_notify: {
-		width: 50,
-		height: 50,
+		width: 55,
+		height: 55,
 		alignItems: 'center',
 		justifyContent: 'center',
 		borderRadius: 100,
@@ -166,18 +213,15 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	modalContent: {
-		backgroundColor: "#ccc",
 		borderRadius: 10,
 		padding: 20,
 		minWidth: Math.max(100, screenWidth * 0.8),
 	},
 	modalButton: {
-		paddingVertical: 20,
-		borderBottomWidth: 1,
-		borderBottomColor: "#000"
+		paddingVertical: 15,
 	},
 	modalText: {
 		fontSize: 16,
-		color: "#000"
+		color: '#000',
 	},
 });

@@ -24,9 +24,9 @@ export const SubscriptionEmpty = () => {
 					{
 						width: boxWidth,
 						height: boxHeight,
-						backgroundColor: colorScheme === 'dark' ? '#111' : '#fff',
+						backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#fff',
 						borderWidth: 1,
-						borderColor: colorScheme === 'dark' ? '#222' : '#f1f1f1',
+						borderColor: colorScheme === 'dark' ? '#444' : '#f1f1f1',
 						transform: [{ translateX: -boxWidth / 2 }, { translateY: -boxHeight / 2 }],
 					},
 				]}

@@ -4,6 +4,7 @@
 It provides a clean interface, local data storage, and simple tools to track expenses effectively.
 
 ## Features
+
 - Add subscriptions with name, price, and payment date
 - Display all active subscriptions in a structured list
 - Edit and delete subscriptions when needed

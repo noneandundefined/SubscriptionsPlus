@@ -7,7 +7,7 @@ import { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import ConfettiCannon from 'react-native-confetti-cannon';
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import subscriptionService from '@/services/SubscriptionService';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';

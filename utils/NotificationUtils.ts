@@ -20,7 +20,8 @@ export const scheduleSubscriptionNotifications = async (subscription: Subscripti
 			await Notifications.scheduleNotificationAsync({
 				content: {
 					title: `Upcoming subscription: ${subscription.name}`,
-					body: `${subscription.price} RUB`,
+					// body: `${subscription.price} RUB`,
+					body: `Your plan will renew for ${subscription.price} RUB on ${subscription.date_pay || 'the upcoming date'}`,
 					sound: Platform.OS === 'android' ? 'default' : undefined,
 				},
 				trigger: {
