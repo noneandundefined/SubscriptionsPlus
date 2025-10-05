@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Subscription } from '@/interfaces/SubscriptionInterface';
-import SubscriptionService from '@/services/SubscriptionService';
+import { basicSubscriptionEditById } from '@/rest/subscriptionAPI';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';
 import { ensureDefaultNotify } from '@/utils/NotifySubscriptionUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -10,7 +10,6 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
-import { EventRegister } from 'react-native-event-listeners';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const alert = (title: string, message: string) => {
@@ -86,9 +85,7 @@ export default function EditScreen() {
 		// Добавляем уведомления для всех notify дат
 		await scheduleSubscriptionNotifications(subToEdit);
 
-		EventRegister.emit('subscriptionEddited', subToEdit);
-
-		await SubscriptionService.update(subToEdit);
+		await basicSubscriptionEditById(subToEdit, subToEdit.id);
 
 		setSubscription({
 			id: Date.now(),
@@ -107,7 +104,10 @@ export default function EditScreen() {
 	return (
 		<SafeAreaView style={styles.container}>
 			<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-				<TouchableOpacity style={[styles.backCircle, { backgroundColor: colorScheme === 'dark' ? "#1c1f21" : "#eee" }]} onPress={() => router.replace('/')}>
+				<TouchableOpacity
+					style={[styles.backCircle, { backgroundColor: colorScheme === 'dark' ? '#1c1f21' : '#eee' }]}
+					onPress={() => router.replace('/')}
+				>
 					<IconSymbol size={25} name="chevron-left" color={colorScheme === 'dark' ? '#525252ff' : '#b4b4b4ff'} />
 				</TouchableOpacity>
 

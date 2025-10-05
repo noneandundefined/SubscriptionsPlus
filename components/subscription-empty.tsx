@@ -14,7 +14,7 @@ export const SubscriptionEmpty = () => {
 			style={[
 				styles.container,
 				{
-					backgroundColor: colorScheme === 'dark' ? '#111' : '#fff',
+					backgroundColor: colorScheme === 'dark' ? 'transparent' : 'transparent',
 				},
 			]}
 		>
@@ -62,13 +62,14 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	img: {
-		width: 110,
-		height: 110,
+		width: 90,
+		height: 90,
 		opacity: 0.45,
 	},
 	text_empty: {
 		textAlign: 'center',
 		padding: 14,
 		marginTop: 12,
+		fontSize: 13,
 	},
 });

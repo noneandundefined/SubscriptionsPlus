@@ -1,4 +1,5 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SubscriptionResponse } from '@/rest/subscriptionAPI';
 import SubscriptionService from '@/services/SubscriptionService';
 import { getNextNotifyDays } from '@/utils/DayUtils';
 import { capitalizeFirstLetter } from '@/utils/StringUtils';
@@ -9,28 +10,13 @@ import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
 
 type NotificationItemProps = {
-	id: number;
-	name: string;
-	price: number;
-	date_pay: string;
-	date_notify_one: string | null;
-	date_notify_two: string | null;
-	date_notify_three: string | null;
+	sub: SubscriptionResponse;
 	onDelete?: () => void;
 };
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export const SubscriptionItem: React.FC<NotificationItemProps> = ({
-	id,
-	name,
-	price,
-	date_pay,
-	date_notify_one,
-	date_notify_two,
-	date_notify_three,
-	onDelete,
-}) => {
+export const SubscriptionItem: React.FC<NotificationItemProps> = ({ sub, onDelete }) => {
 	const router = useRouter();
 	const colorScheme = useColorScheme();
 
@@ -41,19 +27,19 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 		router.push({
 			pathname: '/edit',
 			params: {
-				id,
-				name,
-				price,
-				date_pay,
-				date_notify_one,
-				date_notify_two,
-				date_notify_three,
+				id: sub.id,
+				name: sub.name,
+				price: sub.price,
+				date_pay: sub.date_pay,
+				date_notify_one: sub.date_notify_one,
+				date_notify_two: sub.date_notify_two,
+				date_notify_three: sub.date_notify_three,
 			},
 		});
 	};
 
 	const handleDelete = async () => {
-		await SubscriptionService.del(id);
+		await SubscriptionService.del(sub.id);
 
 		setAdvencedVisible(false);
 		if (onDelete) onDelete();
@@ -84,16 +70,16 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 						]}
 					>
 						<ThemedText style={styles.date_notify_text}>
-							{getNextNotifyDays(date_notify_one, date_notify_two, date_notify_three)
-								? `${getNextNotifyDays(date_notify_one, date_notify_two, date_notify_three)}d`
+							{getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)
+								? `${getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)}d`
 								: '3d'}
 						</ThemedText>
 					</View>
 
 					<View>
-						<ThemedText style={{ fontSize: 17 }}>{capitalizeFirstLetter(name)}</ThemedText>
+						<ThemedText style={{ fontSize: 17 }}>{capitalizeFirstLetter(sub.name)}</ThemedText>
 						<ThemedText style={styles.text_mini}>
-							{new Date(date_pay).toLocaleDateString()} - {price} RUB.
+							{new Date(sub.date_pay).toLocaleDateString()} - {sub.price} RUB.
 						</ThemedText>
 					</View>
 				</View>
@@ -115,7 +101,7 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({
 							},
 						]}
 					>
-						<ThemedText style={{ fontSize: 14, marginBottom: 10 }}>Subscription: {capitalizeFirstLetter(name)}</ThemedText>
+						<ThemedText style={{ fontSize: 14, marginBottom: 10 }}>Subscription: {capitalizeFirstLetter(sub.name)}</ThemedText>
 
 						<TouchableOpacity
 							onPress={handleEdit}

@@ -6,14 +6,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
 import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import ConfettiCannon from 'react-native-confetti-cannon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import subscriptionService from '@/services/SubscriptionService';
+import { basicSubscriptionCreate } from '@/rest/subscriptionAPI';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';
 import { ensureDefaultNotify } from '@/utils/NotifySubscriptionUtils';
 import DatePicker from 'react-datepicker';
-import { EventRegister } from 'react-native-event-listeners';
 
 const alert = (title: string, message: string) => {
 	if (Platform.OS === 'web') {
@@ -87,9 +85,7 @@ const AddScreen = () => {
 		// Добавляем уведомления для всех notify дат
 		await scheduleSubscriptionNotifications(subToSave);
 
-		EventRegister.emit('subscriptionAdded', subToSave);
-
-		await subscriptionService.add(subToSave);
+		await basicSubscriptionCreate(subToSave);
 
 		setSubscription({
 			id: Date.now(),
@@ -102,15 +98,10 @@ const AddScreen = () => {
 		});
 
 		setActiveDateField(null);
-
-		setShowConfetti(true);
-		setTimeout(() => setShowConfetti(false), 3000);
 	};
 
 	return (
 		<SafeAreaView style={styles.container}>
-			{showConfetti && <ConfettiCannon count={120} origin={{ x: -10, y: 0 }} fadeOut />}
-
 			<TouchableOpacity onPress={handleSaveSub} style={styles.add_sub}>
 				<ThemedText>Add Sub</ThemedText>
 			</TouchableOpacity>

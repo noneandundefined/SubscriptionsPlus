@@ -6,13 +6,22 @@
 	"build": {
 		"development": {
 			"developmentClient": true,
-			"distribution": "internal"
+			"distribution": "internal",
+			"env": {
+				"API_URL": "http://192.168.0.3:8080/api/v1"
+			}
 		},
 		"preview": {
-			"distribution": "internal"
+			"distribution": "internal",
+			"env": {
+				"API_URL": "http://77.222.37.171:8080/api/v1"
+			}
 		},
 		"production": {
-			"autoIncrement": true
+			"autoIncrement": true,
+			"env": {
+				"API_URL": "http://77.222.37.171:8080/api/v1"
+			}
 		}
 	},
 	"submit": {

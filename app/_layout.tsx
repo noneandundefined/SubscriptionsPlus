@@ -1,11 +1,11 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import AuthStorageService from '@/services/AuthStorageService';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Notifications from 'expo-notifications';
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Platform, View } from 'react-native';
+import { useState } from 'react';
+import { Platform } from 'react-native';
 import 'react-native-css-interop';
 import 'react-native-reanimated';
 
@@ -14,82 +14,75 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-	const router = useRouter();
 	const colorScheme = useColorScheme();
 
-	const [loading, setLoading] = useState<boolean>(true);
+	const [queryClient] = useState(() => new QueryClient());
 
-	useEffect(() => {
-		const init = async () => {
-			const token = await AuthStorageService.getToken();
-			console.log(token)
-
-			setLoading(false);
-
-			if (!token) {
-				router.push('/user-create');
-			}
-		};
-
-		init();
-	}, []);
-
-	useEffect(() => {
-		if (Platform.OS === 'android') {
-			Notifications.setNotificationChannelAsync('subscriptions', {
-				name: 'Subscription reminders',
-				importance: Notifications.AndroidImportance.HIGH,
-				sound: 'default',
-			});
-		}
-	}, []);
-
-	if (loading) {
-		return (
-			<View
-				style={{
-					flex: 1,
-					alignItems: 'center',
-					justifyContent: 'center',
-					backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
-				}}
-			>
-				<ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
-			</View>
-		);
+	if (Platform.OS === 'android') {
+		Notifications.setNotificationChannelAsync('subscriptions', {
+			name: 'Subscription reminders',
+			importance: Notifications.AndroidImportance.HIGH,
+			sound: 'default',
+		});
 	}
 
 	return (
 		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-			<Stack>
-				<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-				<Stack.Screen name="user-create" options={{
-					headerShown: false, contentStyle: {
-						backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
-					},
-				}} />
-				<Stack.Screen
-					name="edit"
-					options={{
-						presentation: 'formSheet',
-						headerShown: false,
-						contentStyle: {
-							backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
-						},
-					}}
-				/>
-				<Stack.Screen
-					name="subscription-pay"
-					options={{
-						presentation: 'formSheet',
-						// headerShown: false,
-						contentStyle: {
-							backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
-						},
-					}}
-				/>
-			</Stack>
-			<StatusBar style="auto" />
+			<QueryClientProvider client={queryClient}>
+				<Stack>
+					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+					<Stack.Screen
+						name="user-create"
+						options={{
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+					<Stack.Screen
+						name="edit"
+						options={{
+							presentation: 'formSheet',
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+					<Stack.Screen
+						name="subscription-pay"
+						options={{
+							presentation: 'formSheet',
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+					<Stack.Screen
+						name="subscription-pay-wait"
+						options={{
+							presentation: 'formSheet',
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+					<Stack.Screen
+						name="transactions"
+						options={{
+							presentation: 'formSheet',
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+				</Stack>
+				<StatusBar style="auto" />
+			</QueryClientProvider>
 		</ThemeProvider>
 	);
 }

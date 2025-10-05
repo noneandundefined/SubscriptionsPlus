@@ -1,12 +1,13 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { userMeResponse } from '@/rest/userAPI';
 import { TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 
 interface ProfileLogoProps {
-	email: string;
+	user: userMeResponse | null;
 }
 
-export const ProfileLogo: React.FC<ProfileLogoProps> = ({ email }) => {
+export const ProfileLogo: React.FC<ProfileLogoProps> = ({ user }) => {
 	const colorScheme = useColorScheme();
 
 	return (
@@ -16,9 +17,21 @@ export const ProfileLogo: React.FC<ProfileLogoProps> = ({ email }) => {
 					padding: 10,
 					margin: 15,
 					borderRadius: 500,
-					backgroundColor: colorScheme === 'dark' ? '#092341ff' : '#f9f9f9',
+					backgroundColor: user?.is_active
+						? colorScheme === 'dark'
+							? '#092341ff'
+							: '#cbd9e9ff'
+						: colorScheme === 'dark'
+							? '#1d1d1dff'
+							: '#f9f9f9',
 					borderWidth: 1,
-					borderColor: colorScheme === 'dark' ? '#0077ffff' : '#dfdfdfff',
+					borderColor: user?.is_active
+						? colorScheme === 'dark'
+							? '#0077ffff'
+							: '#abd1fdff'
+						: colorScheme === 'dark'
+							? '#444'
+							: '#dfdfdfff',
 					alignSelf: 'flex-end',
 					width: 45,
 					height: 45,
@@ -26,7 +39,7 @@ export const ProfileLogo: React.FC<ProfileLogoProps> = ({ email }) => {
 					justifyContent: 'center',
 				}}
 			>
-				<ThemedText>{email.charAt(0).toUpperCase()}</ThemedText>
+				<ThemedText>{user?.email ? user.email.charAt(0).toUpperCase() : '?'}</ThemedText>
 			</View>
 		</TouchableOpacity>
 	);

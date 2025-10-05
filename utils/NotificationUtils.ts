@@ -1,8 +1,11 @@
 import { Subscription } from '@/interfaces/SubscriptionInterface';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { formatDateUS } from './DayUtils';
 
 export const scheduleSubscriptionNotifications = async (subscription: Subscription) => {
+	await Notifications.cancelAllScheduledNotificationsAsync();
+
 	const notifyFields: (keyof Subscription)[] = ['date_notify_one', 'date_notify_two', 'date_notify_three'];
 
 	const now = new Date();
@@ -20,8 +23,9 @@ export const scheduleSubscriptionNotifications = async (subscription: Subscripti
 			await Notifications.scheduleNotificationAsync({
 				content: {
 					title: `Upcoming subscription: ${subscription.name}`,
-					// body: `${subscription.price} RUB`,
-					body: `Your plan will renew for ${subscription.price} RUB on ${subscription.date_pay || 'the upcoming date'}`,
+					body: `Your plan will renew for ${subscription.price} RUB on ${
+						formatDateUS(subscription.date_pay) || 'the upcoming date'
+					}`,
 					sound: Platform.OS === 'android' ? 'default' : undefined,
 				},
 				trigger: {

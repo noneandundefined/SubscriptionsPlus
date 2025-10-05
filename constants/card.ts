@@ -1,0 +1,1 @@
+export const CARD_PAY = '2200702051147788';

@@ -24,7 +24,11 @@ const MAPPING = {
 	add: 'add',
 	delete: 'delete',
 	edit: 'edit',
-	'chevron-left': 'chevron-left'
+	'chevron-left': 'chevron-left',
+	'chevron-right': 'chevron-right',
+	'credit-card': 'credit-card',
+	link: 'link',
+	'qr-code': 'qr-code',
 } as IconMapping;
 
 /**

@@ -1,4 +1,4 @@
-export const getNextNotifyDays = (date_notify_one: string | null, date_notify_two: string | null, date_notify_three: string | null) => {
+export const getNextNotifyDays = (date_notify_one?: string | null, date_notify_two?: string | null, date_notify_three?: string | null) => {
 	const today = new Date();
 
 	const notifyDates = [date_notify_one, date_notify_two, date_notify_three].filter((d): d is string => d !== null);
@@ -15,6 +15,20 @@ export const getNextNotifyDays = (date_notify_one: string | null, date_notify_tw
 	const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
 	return diffDays;
+};
+
+export const formatDateUS = (dateString?: string | null): string => {
+	if (!dateString || dateString.startsWith('0001')) return '-';
+
+	const date = new Date(dateString);
+
+	const options: Intl.DateTimeFormatOptions = {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric',
+	};
+
+	return date.toLocaleDateString('en-US', options).replace(',', ' -');
 };
 
 export const getNextPaymentDate = (datePay: string): string => {
