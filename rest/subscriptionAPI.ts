@@ -16,6 +16,7 @@ export interface SubscriptionResponse {
 	date_notify_one?: string | null;
 	date_notify_two?: string | null;
 	date_notify_three?: string | null;
+	auto_renewal: boolean;
 }
 
 export const basicSubscriptionsGet = async (search?: string): Promise<SubscriptionResponse[]> => {
@@ -31,6 +32,18 @@ export const basicSubscriptionGetById = async (id: number): Promise<Subscription
 export const basicSubscriptionCreate = async (payload: SubscriptionCreateRequest): Promise<void> => {
 	const response = await axiosClient.post(`${apiPath}`, payload);
 	ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
+};
+
+export const basicSubscriptionImage = async (name: string): Promise<Blob | null> => {
+	try {
+		const response = await axiosClient.get(`${apiPath}/images/w350?name=${name}`, {
+			responseType: 'blob',
+		});
+
+		return response.data;
+	} catch (err) {
+		return null;
+	}
 };
 
 export const basicSubscriptionEditById = async (payload: SubscriptionEditRequest, id: number): Promise<void> => {

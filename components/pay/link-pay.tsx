@@ -1,7 +1,8 @@
 import { PAY_LINK } from '@/constants/pay';
 import { TransactionResponse } from '@/rest/transactionAPI';
 import * as Clipboard from 'expo-clipboard';
-import { Linking, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, Linking, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, useColorScheme, View } from 'react-native';
 
 interface LinkPayProps {
 	transaction: TransactionResponse;
@@ -9,6 +10,8 @@ interface LinkPayProps {
 
 const LinkPay: React.FC<LinkPayProps> = ({ transaction }) => {
 	const colorScheme = useColorScheme();
+
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const handleCopy = async (value: string | number) => {
 		await Clipboard.setStringAsync(String(value));
@@ -18,17 +21,36 @@ const LinkPay: React.FC<LinkPayProps> = ({ transaction }) => {
 	return (
 		<View style={{ marginVertical: 20 }}>
 			<Text style={[styles.inputLabel, { color: colorScheme === 'dark' ? '#dadadaff' : '#475569' }]}>Subscription price</Text>
-			<TouchableOpacity onPress={() => handleCopy(transaction.amount)}>
+			<TouchableOpacity onPress={() => {
+				try {
+					setLoading(true);
+					handleCopy(transaction.amount)
+				} finally {
+					setLoading(false);
+				}
+			}} disabled={loading}>
 				<TextInput style={styles.input} value={String(`${transaction.amount}.00`)} editable={false} selectTextOnFocus={true} />
 			</TouchableOpacity>
-
 			<Text style={[styles.footerText, { marginBottom: 13 }]}>Please specify the subscription cost when making a payment.</Text>
+
+			<Text style={[styles.inputLabel, { color: colorScheme === 'dark' ? '#dadadaff' : '#475569' }]}>X Token</Text>
+			<TouchableOpacity onPress={() => handleCopy(transaction.x_token)}>
+				<TextInput style={styles.input} value={transaction.x_token} editable={false} selectTextOnFocus={true} pointerEvents="none" />
+			</TouchableOpacity>
+			<Text style={styles.footerText}>
+				Please specify your X Token in the payment comment. This is necessary to identify your payment. Without it, subscription
+				confirmation is not possible.
+			</Text>
 
 			<TouchableOpacity
 				onPress={() => Linking.openURL(PAY_LINK)}
-				style={{ marginTop: 5, backgroundColor: colorScheme === 'dark' ? '#60A5FA' : '#2563EB', padding: 14, borderRadius: 6 }}
+				style={{ marginTop: 20, backgroundColor: colorScheme === 'dark' ? '#60A5FA' : '#2563EB', padding: 14, borderRadius: 6 }}
 			>
-				<Text style={{ color: '#fff', fontSize: 15, textAlign: 'center' }}>Pay using the link</Text>
+				{loading ? (
+					<ActivityIndicator size="small" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+				) : (
+					<Text style={{ color: '#fff', fontSize: 15, textAlign: 'center' }}>Pay using the link</Text>
+				)}
 			</TouchableOpacity>
 		</View>
 	);

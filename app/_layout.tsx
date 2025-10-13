@@ -41,6 +41,15 @@ export default function RootLayout() {
 						}}
 					/>
 					<Stack.Screen
+						name="user-restore-access"
+						options={{
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
+							},
+						}}
+					/>
+					<Stack.Screen
 						name="edit"
 						options={{
 							presentation: 'formSheet',

@@ -31,7 +31,7 @@ const TransactionEmpty = () => {
                     },
                 ]}
             >
-                <Image source={require('../assets/images/sub-icon-base.png')} resizeMode="contain" style={styles.img} />
+                <Image source={require('../assets/images/sub-icon-base.png')} resizeMode="contain" style={[styles.img, { borderRadius: 15 }]} />
                 <Text
                     style={[
                         styles.text_empty,

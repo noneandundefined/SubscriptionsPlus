@@ -1,4 +1,4 @@
-import API_URL from '@/config/client';
+import config from '@/config/client';
 import AuthStorageService from '@/services/AuthStorageService';
 import axios, { AxiosError } from 'axios';
 import { router } from 'expo-router';
@@ -7,7 +7,7 @@ import { ToastAndroid } from 'react-native';
 
 // axios base url
 const axiosClient = axios.create({
-	baseURL: API_URL,
+	baseURL: config.API_URL,
 	paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'comma' }),
 	withCredentials: true,
 });
@@ -31,6 +31,12 @@ axiosClient.interceptors.response.use(
 			return Promise.reject(error);
 		}
 
+		// internet
+		if (error.message === 'Network Error' || error.code === 'ERR_NETWORK' || error.message.includes('Network request failed')) {
+			ToastAndroid.show('No internet connection. Please check your network.', ToastAndroid.SHORT);
+			return Promise.reject(error);
+		}
+
 		if (error instanceof AxiosError) {
 			if (error.response && error.response.status) {
 				if (error.response.status === 401) {
@@ -38,9 +44,11 @@ axiosClient.interceptors.response.use(
 
 					setTimeout(() => {
 						router.replace('/user-create');
-					}, 2000);
+					}, 1500);
 				} else {
-					ToastAndroid.show(error.response.data?.message || 'server error', ToastAndroid.SHORT);
+					if (error.response.data.message) {
+						ToastAndroid.show(error.response.data.message, ToastAndroid.SHORT);
+					}
 				}
 			} else if (error.request) {
 				ToastAndroid.show('error sending request', ToastAndroid.SHORT);

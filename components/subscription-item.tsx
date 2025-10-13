@@ -1,11 +1,14 @@
+import config from '@/config/client';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { SubscriptionResponse } from '@/rest/subscriptionAPI';
+import { useHandleServer } from '@/hooks/use-handle-server';
+import { basicSubscriptionImage, SubscriptionResponse } from '@/rest/subscriptionAPI';
 import SubscriptionService from '@/services/SubscriptionService';
 import { getNextNotifyDays } from '@/utils/DayUtils';
 import { capitalizeFirstLetter } from '@/utils/StringUtils';
+// import { getSubscriptionImage } from '@/utils/SubscriptionImage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
 
@@ -34,9 +37,12 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({ sub, onDelet
 				date_notify_one: sub.date_notify_one,
 				date_notify_two: sub.date_notify_two,
 				date_notify_three: sub.date_notify_three,
+				auto_renewal: String(sub.auto_renewal),
 			},
 		});
 	};
+
+	const { data: basicSubscriptionImageResp } = useHandleServer(['basicSubscriptionImageResp', sub.name], () => basicSubscriptionImage(sub.name))
 
 	const handleDelete = async () => {
 		await SubscriptionService.del(sub.id);
@@ -59,27 +65,34 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({ sub, onDelet
 				]}
 			>
 				<View style={styles.row_left}>
-					<View
-						style={[
-							styles.date_notify,
-							{
-								backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
-								borderWidth: 1,
-								borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
-							},
-						]}
-					>
-						<ThemedText style={styles.date_notify_text}>
-							{getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)
-								? `${getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)}d`
-								: '3d'}
-						</ThemedText>
-					</View>
+					{basicSubscriptionImageResp ? (
+						<Image
+							source={{ uri: `${config.API_URL}/subs/images/w350?name=${sub.name}` }}
+							style={styles.date_notify}
+						/>
+					) : (
+						<View
+							style={[
+								styles.date_notify,
+								{
+									backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+									borderWidth: 1,
+									borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+								},
+							]}
+						>
+							<ThemedText style={styles.date_notify_text}>
+								{getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)
+									? `${getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)}d`
+									: '3d'}
+							</ThemedText>
+						</View>
+					)}
 
 					<View>
 						<ThemedText style={{ fontSize: 17 }}>{capitalizeFirstLetter(sub.name)}</ThemedText>
 						<ThemedText style={styles.text_mini}>
-							{new Date(sub.date_pay).toLocaleDateString()} - {sub.price} RUB.
+							{new Date(sub.date_pay).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - {sub.price} RUB.
 						</ThemedText>
 					</View>
 				</View>

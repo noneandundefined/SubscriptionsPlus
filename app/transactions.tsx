@@ -45,7 +45,7 @@ export default function TransactionsScreen() {
     }
 
     return (
-        <SafeAreaView style={[styles.safe, { backgroundColor: colorScheme === 'dark' ? '#000' : '#fff' }]}>
+        <SafeAreaView style={[styles.safe, { backgroundColor: colorScheme === 'dark' ? '#000' : '#eee' }]}>
             <View style={styles.container}>
                 <View style={styles.topRow}>
                     <TouchableOpacity
@@ -79,15 +79,17 @@ const TransactionItem = ({ item }: { item: TransactionResponse }) => {
         <TouchableOpacity activeOpacity={0.7} style={[styles.item, {
             backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
             borderWidth: 1,
+            paddingVertical: 30,
+            paddingHorizontal: 25,
             borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
         }]}>
-            <View style={{ flex: 1, marginLeft: 10 }}>
+            <View style={{ flex: 1 }}>
                 <ThemedText style={styles.token}>{item.x_token}</ThemedText>
-                <Text style={styles.status}>{item.status}</Text>
+                <Text style={[styles.status, { color: item.status === 'success' ? "#0e920eff" : item.status === "failed" ? "#920e0eff" : "#ac610bff" }]}>{item.status}</Text>
             </View>
 
             <View style={{ alignItems: 'flex-end' }}>
-                <Text style={[styles.amount, { color: item.status === 'success' ? "#0e920eff" : item.status === "failed" ? "#920e0eff" : "#ac610bff" }]}>
+                <Text style={[styles.amount, { color: colorScheme === "dark" ? "#fff" : "#000" }]}>
                     {item.amount} RUB
                 </Text>
                 <Text style={styles.date}>{formatDateUS(item.created_at)}</Text>
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
         marginTop: 10
     },
     topRow: {
@@ -127,8 +129,7 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 20,
-        borderRadius: 14,
+        borderRadius: 25,
         marginBottom: 10,
         width: '100%'
     },

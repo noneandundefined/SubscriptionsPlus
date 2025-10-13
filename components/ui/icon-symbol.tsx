@@ -29,6 +29,8 @@ const MAPPING = {
 	'credit-card': 'credit-card',
 	link: 'link',
 	'qr-code': 'qr-code',
+	'auto-fix-high': 'auto-fix-high',
+	'mark-email-unread': 'mark-email-unread'
 } as IconMapping;
 
 /**

@@ -4,9 +4,11 @@ import { Platform } from 'react-native';
 import { formatDateUS } from './DayUtils';
 
 export const scheduleSubscriptionNotifications = async (subscription: Subscription) => {
-	await Notifications.cancelAllScheduledNotificationsAsync();
-
-	const notifyFields: (keyof Subscription)[] = ['date_notify_one', 'date_notify_two', 'date_notify_three'];
+	const notifyFields: Array<'date_notify_one' | 'date_notify_two' | 'date_notify_three'> = [
+		'date_notify_one',
+		'date_notify_two',
+		'date_notify_three',
+	];
 
 	const now = new Date();
 
@@ -14,7 +16,7 @@ export const scheduleSubscriptionNotifications = async (subscription: Subscripti
 		const notifyDateStr = subscription[field];
 		if (!notifyDateStr) continue;
 
-		const notifyDate = new Date(notifyDateStr);
+		const notifyDate = new Date(String(notifyDateStr));
 		if (notifyDate <= now) continue;
 
 		const secondsUntilNotify = Math.max(1, (notifyDate.getTime() - now.getTime()) / 1000);

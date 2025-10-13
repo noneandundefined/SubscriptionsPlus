@@ -61,7 +61,6 @@ export default function SubscriptionPayWaitScreen() {
                 <View style={styles.header}>
                     <TimerTransaction
                         createdAt={transaction.created_at}
-                        endedAt={transaction.ended_at}
                         color={colorScheme === 'dark' ? '#fff' : '#000'}
                         onTimerEnd={() => setIsTimeOver(true)}
                     />

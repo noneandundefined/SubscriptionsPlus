@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class AuthStorageService {
 	private static TOKEN_KEY = 's+sub+scret_key+key[authToken]';
+	private static REFRESH_TOKEN_KEY = 's+sub+scret_key+key[authToken]-refresh';
 
 	async getToken(): Promise<string | null> {
 		try {
@@ -20,6 +21,26 @@ class AuthStorageService {
 	async removeToken(): Promise<void> {
 		try {
 			await AsyncStorage.removeItem(AuthStorageService.TOKEN_KEY);
+		} catch (e) {}
+	}
+
+	async getRefreshToken(): Promise<string | null> {
+		try {
+			return await AsyncStorage.getItem(AuthStorageService.REFRESH_TOKEN_KEY);
+		} catch {
+			return null;
+		}
+	}
+
+	async setRefreshToken(token: string): Promise<void> {
+		try {
+			await AsyncStorage.setItem(AuthStorageService.REFRESH_TOKEN_KEY, token);
+		} catch (e) {}
+	}
+
+	async removeRefreshToken(): Promise<void> {
+		try {
+			await AsyncStorage.removeItem(AuthStorageService.REFRESH_TOKEN_KEY);
 		} catch (e) {}
 	}
 }

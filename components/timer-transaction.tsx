@@ -3,36 +3,35 @@ import { StyleSheet, Text, View } from 'react-native';
 
 interface TimerTransactionProps {
 	createdAt: string;
-	endedAt: string;
 	color: string;
 	onTimerEnd?: () => void;
 }
 
 const parseLocal = (isoString: string) => {
-	return new Date(isoString.replace('Z', '')).getTime();
+	const utcDate = new Date(isoString);
+	return utcDate.getTime() + utcDate.getTimezoneOffset() * 60 * 1000 * -1;
 };
 
-const TimerTransaction = ({ createdAt, endedAt, color, onTimerEnd }: TimerTransactionProps) => {
+const TimerTransaction = ({ createdAt, color, onTimerEnd }: TimerTransactionProps) => {
 	const [timeLeft, setTimeLeft] = useState<number>(60 * 60);
 
 	useEffect(() => {
-		const endTime = parseLocal(endedAt);
-		const now = Date.now();
+		const endTime = parseLocal(createdAt) + 60 * 60 * 1000;
 
-		let diff = Math.max(0, Math.floor((endTime - now) / 1000));
-		setTimeLeft(diff);
-
-		const interval = setInterval(() => {
-			diff -= 1;
-			setTimeLeft(diff > 0 ? diff : 0);
+		const updateTimer = () => {
+			const now = Date.now();
+			const diff = Math.max(0, Math.floor((endTime - now) / 1000));
+			setTimeLeft(diff);
 			if (diff <= 0) {
-				clearInterval(interval);
 				onTimerEnd?.();
 			}
-		}, 1000);
+		};
 
+		updateTimer();
+
+		const interval = setInterval(updateTimer, 1000);
 		return () => clearInterval(interval);
-	}, [createdAt, endedAt]);
+	}, [createdAt]);
 
 	const formatTime = (seconds: number) => {
 		const h = Math.floor(seconds / 3600);

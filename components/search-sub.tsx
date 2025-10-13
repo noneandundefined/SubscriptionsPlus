@@ -37,6 +37,7 @@ export const SearchSubInput: React.FC<SearchSubInputProps> = ({ searchQuery, set
 					backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
 					borderWidth: 1,
 					marginHorizontal: 10,
+					marginBottom: 10,
 					fontSize: 15,
 					borderRadius: 25,
 					height: 55,

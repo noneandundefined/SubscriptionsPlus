@@ -8,19 +8,22 @@
 			"developmentClient": true,
 			"distribution": "internal",
 			"env": {
-				"API_URL": "http://192.168.0.3:8080/api/v1"
+				"API_URL": "http://192.168.0.3:8080/api/v1",
+				"APPKEY_TOKEN": "SUBS_pluS@PpKey-7x9q2rM8ZtF5w0"
 			}
 		},
 		"preview": {
 			"distribution": "internal",
 			"env": {
-				"API_URL": "http://77.222.37.171:8080/api/v1"
+				"API_URL": "https://subscriptionplus.online/api/v1",
+				"APPKEY_TOKEN": "SUBS_pluS@PpKey-7x9q2rM8ZtF5w0"
 			}
 		},
 		"production": {
 			"autoIncrement": true,
 			"env": {
-				"API_URL": "http://77.222.37.171:8080/api/v1"
+				"API_URL": "https://subscriptionplus.online/api/v1",
+				"APPKEY_TOKEN": "SUBS_pluS@PpKey-7x9q2rM8ZtF5w0"
 			}
 		}
 	},

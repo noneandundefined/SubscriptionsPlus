@@ -1,11 +1,12 @@
 import { Tabs, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import AuthStorageService from '@/services/AuthStorageService';
+import { useFocusEffect } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -16,19 +17,21 @@ export default function TabLayout() {
 	const [queryClient] = useState(() => new QueryClient());
 	const [loading, setLoading] = useState<boolean>(true);
 
-	useEffect(() => {
-		const init = async () => {
-			const token = await AuthStorageService.getToken();
+	useFocusEffect(
+		useCallback(() => {
+			const init = async () => {
+				const token = await AuthStorageService.getToken();
 
-			setLoading(false);
+				setLoading(false);
 
-			if (!token) {
-				router.replace('/user-create');
-			}
-		};
+				if (!token) {
+					router.replace('/user-create');
+				}
+			};
 
-		init();
-	}, []);
+			init();
+		}, [])
+	);
 
 	if (loading) {
 		return (

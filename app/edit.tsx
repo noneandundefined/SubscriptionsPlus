@@ -2,14 +2,15 @@ import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Subscription } from '@/interfaces/SubscriptionInterface';
 import { basicSubscriptionEditById } from '@/rest/subscriptionAPI';
+import { basicUserMe, userMeResponse } from '@/rest/userAPI';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';
 import { ensureDefaultNotify } from '@/utils/NotifySubscriptionUtils';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter, useSearchParams } from 'expo-router/build/hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
+import { Alert, Platform, StyleSheet, Switch, Text, TextInput, TouchableOpacity, useColorScheme, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const alert = (title: string, message: string) => {
@@ -33,6 +34,7 @@ export default function EditScreen() {
 		date_notify_one: params.get('date_notify_one') ?? null,
 		date_notify_two: params.get('date_notify_two') ?? null,
 		date_notify_three: params.get('date_notify_three') ?? null,
+		auto_renewal: params.get('auto_renewal') === 'true',
 	});
 
 	const reminderFields: (keyof Subscription)[] = ['date_notify_one', 'date_notify_two', 'date_notify_three'];
@@ -41,6 +43,15 @@ export default function EditScreen() {
 	const canAddMore = usedReminders.length < reminderFields.length;
 
 	const [activeDateField, setActiveDateField] = useState<keyof Subscription | null>(null);
+
+	const [basicUserMeResp, setBasicUserMeResp] = useState<userMeResponse | null>(null);
+	useEffect(() => {
+		const init = async () => {
+			setBasicUserMeResp(await basicUserMe())
+		}
+
+		init();
+	}, [])
 
 	const handleDateChange = (date: Date | null, field: keyof Subscription) => {
 		if (!date) {
@@ -95,6 +106,7 @@ export default function EditScreen() {
 			date_notify_one: null,
 			date_notify_two: null,
 			date_notify_three: null,
+			auto_renewal: false,
 		});
 
 		setActiveDateField(null);
@@ -222,6 +234,40 @@ export default function EditScreen() {
 						</Text>
 					</TouchableOpacity>
 				)}
+
+				<View style={{ marginTop: 20, gap: 10 }}>
+					<ThemedText style={{ fontWeight: 500 }}>Subscription settings</ThemedText>
+
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => {
+							if (!basicUserMeResp?.is_active) {
+								Alert.alert('Premium feature', 'This feature is available only for Premium users.')
+							}
+						}}
+						style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', opacity: !basicUserMeResp?.is_active ? 0.5 : 1, }}
+					>
+						<ThemedText style={{ fontSize: 14 }}>Subscription auto-renewal & reminders</ThemedText>
+
+						<Switch
+							trackColor={{ false: "#767577", true: "#81b0ff" }}
+							thumbColor={subscription.auto_renewal ? "#4ba3f5ff" : "#f4f3f4"}
+							ios_backgroundColor="#3e3e3e"
+							onValueChange={(value) => {
+								if (basicUserMeResp?.is_active) {
+									setSubscription((prev) => ({
+										...prev,
+										auto_renewal: value,
+									}));
+								} else {
+									Alert.alert('Premium feature', 'This feature is available only for Premium users.')
+								}
+							}}
+							value={subscription.auto_renewal}
+							style={{ transform: [{ scaleX: 1.15 }, { scaleY: 1.15 }] }}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
 		</SafeAreaView>
 	);

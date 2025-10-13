@@ -5,4 +5,5 @@ export interface SubscriptionCreateRequest {
 	date_notify_one?: string | null;
 	date_notify_two?: string | null;
 	date_notify_three?: string | null;
+	auto_renewal: boolean;
 }

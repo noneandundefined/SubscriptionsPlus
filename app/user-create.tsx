@@ -1,11 +1,11 @@
 import { ThemedText } from '@/components/themed-text';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { basicAuthCreate } from '@/rest/authAPI';
+import { basicAuthCreate, basicAuthLoginRestore } from '@/rest/authAPI';
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
 
 export default function UserCreateScreen() {
 	const router = useRouter();
@@ -13,6 +13,28 @@ export default function UserCreateScreen() {
 
 	const [email, setEmail] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
+	const [loadingWin, setLoadingWin] = useState<boolean>(false);
+
+	const handleLoginRestore = async () => {
+		try {
+			setLoadingWin(true);
+			await basicAuthLoginRestore();
+
+			router.replace('/')
+		} finally {
+			setLoadingWin(false)
+		}
+	}
+
+	useEffect(() => {
+		handleLoginRestore();
+	}, [])
+
+	useFocusEffect(
+		useCallback(() => {
+			handleLoginRestore();
+		}, [])
+	)
 
 	const handleCreate = async () => {
 		try {
@@ -23,22 +45,27 @@ export default function UserCreateScreen() {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}
 
-	useEffect(() => {
-		setTimeout(() => {
-			Toast.show({
-				type: 'success',
-				text1: 'Hello 👋',
-				text2: 'Toasыt is working!',
-			});
-		}, 3000);
-	}, []);
+	if (loadingWin) {
+		return (
+			<View
+				style={{
+					flex: 1,
+					alignItems: 'center',
+					justifyContent: 'center',
+					backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+				}}
+			>
+				<ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+			</View>
+		);
+	}
 
 	return (
 		<SafeAreaView style={[styles.container, { backgroundColor: colorScheme === 'dark' ? '#000' : '#eee' }]}>
 			<View style={styles.inner}>
-				<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 100, maxHeight: 100, marginBottom: 30 }} />
+				<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 100, maxHeight: 100, marginBottom: 30, borderRadius: 25 }} />
 
 				<ThemedText type="title" style={styles.title}>
 					Create your account
@@ -70,10 +97,14 @@ export default function UserCreateScreen() {
 					disabled={loading}
 				>
 					{loading ? (
-						<ActivityIndicator size="small" color={colorScheme === 'dark' ? '#000' : '#fff'} />
+						<ActivityIndicator size="small" color={colorScheme === 'dark' ? '#fff' : '#000'} />
 					) : (
 						<Text style={[styles.buttonText, { color: colorScheme === 'dark' ? '#000' : '#fff' }]}>Create</Text>
 					)}
+				</TouchableOpacity>
+
+				<TouchableOpacity onPress={() => router.push('/user-restore-access')}>
+					<Text style={[{ color: colorScheme === 'dark' ? '#999' : '#999', marginTop: 20, fontSize: 16 }]}>Restore my account</Text>
 				</TouchableOpacity>
 			</View>
 		</SafeAreaView>

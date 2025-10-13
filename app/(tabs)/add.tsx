@@ -5,10 +5,13 @@ import { Subscription } from '@/interfaces/SubscriptionInterface';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
 import 'react-datepicker/dist/react-datepicker.css';
-import { Alert, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import AutoRenewalSubscription from '@/components/auto-renewal-subscription';
+import { useHandleServer } from '@/hooks/use-handle-server';
 import { basicSubscriptionCreate } from '@/rest/subscriptionAPI';
+import { basicUserMe } from '@/rest/userAPI';
 import { scheduleSubscriptionNotifications } from '@/utils/NotificationUtils';
 import { ensureDefaultNotify } from '@/utils/NotifySubscriptionUtils';
 import DatePicker from 'react-datepicker';
@@ -32,7 +35,10 @@ const AddScreen = () => {
 		date_notify_one: null,
 		date_notify_two: null,
 		date_notify_three: null,
+		auto_renewal: false,
 	});
+
+	const { data: basicUserMeResp, loading: basicUserMeLoading } = useHandleServer(['basicUserMeResp'], basicUserMe);
 
 	const reminderFields: (keyof Subscription)[] = ['date_notify_one', 'date_notify_two', 'date_notify_three'];
 
@@ -40,7 +46,7 @@ const AddScreen = () => {
 	const canAddMore = usedReminders.length < reminderFields.length;
 
 	const [activeDateField, setActiveDateField] = useState<keyof Subscription | null>(null);
-	const [showConfetti, setShowConfetti] = useState(false);
+	const [loading, setLoading] = useState<boolean>(false);
 
 	const handleDateChange = (date: Date | null, field: keyof Subscription) => {
 		if (!date) {
@@ -80,30 +86,52 @@ const AddScreen = () => {
 			return;
 		}
 
-		const subToSave = ensureDefaultNotify(subscription);
+		try {
+			setLoading(true);
+			const subToSave = ensureDefaultNotify(subscription);
 
-		// Добавляем уведомления для всех notify дат
-		await scheduleSubscriptionNotifications(subToSave);
+			await scheduleSubscriptionNotifications(subToSave);
+			await basicSubscriptionCreate(subToSave);
 
-		await basicSubscriptionCreate(subToSave);
-
-		setSubscription({
-			id: Date.now(),
-			name: '',
-			price: 0,
-			date_pay: '',
-			date_notify_one: null,
-			date_notify_two: null,
-			date_notify_three: null,
-		});
-
-		setActiveDateField(null);
+			setSubscription({
+				id: Date.now(),
+				name: '',
+				price: 0,
+				date_pay: '',
+				date_notify_one: null,
+				date_notify_two: null,
+				date_notify_three: null,
+				auto_renewal: false,
+			});
+			setActiveDateField(null);
+		} finally {
+			setLoading(false);
+		}
 	};
 
+	if (basicUserMeLoading) {
+		return (
+			<View
+				style={{
+					flex: 1,
+					alignItems: 'center',
+					justifyContent: 'center',
+					backgroundColor: colorScheme === 'dark' ? '#000' : '#fff',
+				}}
+			>
+				<ActivityIndicator size="large" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+			</View>
+		);
+	}
+
 	return (
-		<SafeAreaView style={styles.container}>
+		<SafeAreaView style={[styles.container, { flex: 1 }]}>
 			<TouchableOpacity onPress={handleSaveSub} style={styles.add_sub}>
-				<ThemedText>Add Sub</ThemedText>
+				{loading ? (
+					<ActivityIndicator size="small" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+				) : (
+					<ThemedText>Add Sub</ThemedText>
+				)}
 			</TouchableOpacity>
 
 			<View style={styles.content_add_container}>
@@ -212,8 +240,44 @@ const AddScreen = () => {
 						</Text>
 					</TouchableOpacity>
 				)}
+
+				<View style={{ marginTop: 20, gap: 10 }}>
+					<ThemedText style={{ fontWeight: 500 }}>Subscription settings</ThemedText>
+
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => {
+							if (!basicUserMeResp?.is_active) {
+								Alert.alert('Premium feature', 'This feature is available only for Premium users.')
+							}
+						}}
+						style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', opacity: !basicUserMeResp?.is_active ? 0.5 : 1, }}
+					>
+						<ThemedText style={{ fontSize: 14 }}>Subscription auto-renewal & reminders</ThemedText>
+
+						<Switch
+							trackColor={{ false: "#767577", true: "#81b0ff" }}
+							thumbColor={subscription.auto_renewal ? "#4ba3f5ff" : "#f4f3f4"}
+							ios_backgroundColor="#3e3e3e"
+							onValueChange={(value) => {
+								if (basicUserMeResp?.is_active) {
+									setSubscription((prev) => ({
+										...prev,
+										auto_renewal: value,
+									}));
+								} else {
+									Alert.alert('Premium feature', 'This feature is available only for Premium users.')
+								}
+							}}
+							value={subscription.auto_renewal}
+							style={{ transform: [{ scaleX: 1.15 }, { scaleY: 1.15 }] }}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
-		</SafeAreaView>
+
+			<AutoRenewalSubscription />
+		</SafeAreaView >
 	);
 };
 
