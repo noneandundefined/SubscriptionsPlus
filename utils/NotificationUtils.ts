@@ -1,44 +1,39 @@
-import { Subscription } from '@/interfaces/SubscriptionInterface';
+import Constants from 'expo-constants';
+import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
-import { formatDateUS } from './DayUtils';
 
-export const scheduleSubscriptionNotifications = async (subscription: Subscription) => {
-	const notifyFields: Array<'date_notify_one' | 'date_notify_two' | 'date_notify_three'> = [
-		'date_notify_one',
-		'date_notify_two',
-		'date_notify_three',
-	];
+Notifications.setNotificationHandler({
+	handleNotification: async () => ({
+		shouldShowAlert: true,
+		shouldPlaySound: true,
+		shouldSetBadge: false,
+		shouldShowBanner: true,
+		shouldShowList: true,
+	}),
+});
 
-	const now = new Date();
-
-	for (const field of notifyFields) {
-		const notifyDateStr = subscription[field];
-		if (!notifyDateStr) continue;
-
-		const notifyDate = new Date(String(notifyDateStr));
-		if (notifyDate <= now) continue;
-
-		const secondsUntilNotify = Math.max(1, (notifyDate.getTime() - now.getTime()) / 1000);
-
-		try {
-			await Notifications.scheduleNotificationAsync({
-				content: {
-					title: `Upcoming subscription: ${subscription.name}`,
-					body: `Your plan will renew for ${subscription.price} RUB on ${
-						formatDateUS(subscription.date_pay) || 'the upcoming date'
-					}`,
-					sound: Platform.OS === 'android' ? 'default' : undefined,
-				},
-				trigger: {
-					type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-					seconds: secondsUntilNotify,
-					repeats: false,
-					channelId: Platform.OS === 'android' ? 'subscriptions' : undefined,
-				},
-			});
-		} catch (e) {
-			console.error('Error scheduling notification:', e);
-		}
+export const registerForPushNotificationsAsync = async (): Promise<string | null> => {
+	if (!Device.isDevice) {
+		alert('Push notifications require a physical device');
+		return null;
 	}
+
+	const { status: existingStatus } = await Notifications.getPermissionsAsync();
+	let finalStatus = existingStatus;
+
+	if (existingStatus !== 'granted') {
+		const { status } = await Notifications.requestPermissionsAsync();
+		finalStatus = status;
+	}
+
+	if (finalStatus !== 'granted') {
+		alert('Permission not granted!');
+		return null;
+	}
+
+	const projectId = Constants?.expoConfig?.extra?.eas?.projectId;
+	const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+
+	console.log('Expo Push Token:', token);
+	return token;
 };

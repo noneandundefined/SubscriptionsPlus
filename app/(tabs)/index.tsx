@@ -1,4 +1,4 @@
-import { ActivityIndicator, Dimensions, FlatList, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { SubscriptionEmpty } from '@/components/subscription-empty';
 import { SubscriptionItem } from '@/components/subscription-item';
@@ -11,13 +11,15 @@ import SubscriptionStatusPay from '@/components/subscription-status-pay';
 import { ThemedText } from '@/components/themed-text';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useHandleServer } from '@/hooks/use-handle-server';
+import { basicNotifyToken } from '@/rest/notificationAPI';
 import { basicSubscriptionDeleteById, basicSubscriptionsGet } from '@/rest/subscriptionAPI';
 import { basicTransactionsSubscriptionPending } from '@/rest/transactionAPI';
 import { basicUserMe } from '@/rest/userAPI';
 import { getGreeting } from '@/utils/GreetingUtils';
-import * as Notifications from 'expo-notifications';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { registerForPushNotificationsAsync } from '@/utils/NotificationUtils';
 import { useFocusEffect } from '@react-navigation/native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -46,14 +48,11 @@ export default function HomeScreen() {
 	} = useHandleServer(['basicSubscriptionsGetResp', searchQuery], () => basicSubscriptionsGet(searchQuery));
 
 	useEffect(() => {
-		const requestPermissions = async () => {
-			const { status } = await Notifications.requestPermissionsAsync();
-			if (status !== 'granted') {
-				alert('Permission for notifications not granted!');
+		registerForPushNotificationsAsync().then(async token => {
+			if (token) {
+				await basicNotifyToken(token);
 			}
-		};
-
-		requestPermissions();
+		});
 	}, []);
 
 	const handleDelete = async (id: number) => {
@@ -78,68 +77,62 @@ export default function HomeScreen() {
 
 	return (
 		<SafeAreaView style={{ flex: 1, backgroundColor: colorScheme === 'dark' ? '#000' : '#eee' }} edges={['top', 'left', 'right']}>
-			{/* Subscription user */}
-			<FlatList
-				data={basicSubscriptionsGetResp}
-				keyExtractor={(item) => item.id.toString()}
-				renderItem={({ item }) => <SubscriptionItem sub={item} onDelete={() => handleDelete(item.id)} />}
-				ListEmptyComponent={<SubscriptionEmpty />}
-				contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-				refreshing={loading}
-				onRefresh={reload}
-				ListHeaderComponent={
-					<>
-						{/* Logo profile user */}
-						<ProfileLogo user={basicUserMeResp} />
+			<GestureHandlerRootView style={{ flex: 1 }}>
+				{/* Subscription user */}
+				<FlatList
+					data={basicSubscriptionsGetResp}
+					keyExtractor={(item) => item.id.toString()}
+					renderItem={({ item }) => <SubscriptionItem sub={item} onDelete={() => handleDelete(item.id)} />}
+					ListEmptyComponent={<SubscriptionEmpty />}
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+					refreshing={loading}
+					onRefresh={reload}
+					ListHeaderComponent={
+						<>
+							{/* Logo profile user */}
+							<ProfileLogo user={basicUserMeResp} />
 
-						{basicSubscriptionsGetResp && (
-							<View style={styles.text_hi_view}>
-								<ThemedText style={styles.text_hi_title}>{getGreeting()}</ThemedText>
-								<Text
-									style={[
-										styles.text_hi_desc,
-										{
-											color: colorScheme === 'dark' ? '#999' : '#999',
-										},
-									]}
-								>
-									time to manage your subscriptions.
-								</Text>
-								<View
-									style={[
-										styles.total_price,
-										{
-											backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
-											borderWidth: 1,
-											borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
-										},
-									]}
-								>
-									<ThemedText style={{ fontSize: 14, textAlign: 'center' }}>
-										{basicSubscriptionsGetResp.reduce((sum, sub) => sum + sub.price, 0)}
-									</ThemedText>
+							{basicSubscriptionsGetResp && (
+								<View style={styles.text_hi_view}>
+									<ThemedText style={styles.text_hi_title}>{getGreeting()}</ThemedText>
+									<Text
+										style={[
+											styles.text_hi_desc,
+											{
+												color: colorScheme === 'dark' ? '#999' : '#999',
+											},
+										]}
+									>
+										time to manage your subscriptions.
+									</Text>
 								</View>
-							</View>
-						)}
+							)}
 
-						{/* Search */}
-						<SearchSubInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} colorScheme={colorScheme} />
+							{/* Search */}
+							<SearchSubInput searchQuery={searchQuery} setSearchQuery={setSearchQuery} colorScheme={colorScheme} />
 
-						{/* Notify for pay subscription */}
-						{!basicUserMeResp?.is_active && (
-							<View style={{ maxWidth: '100%' }}>
-								{basicTransactionsSubscriptionPendingResp ? (
-									<View>
-										<SubscriptionStatusPay transaction={basicTransactionsSubscriptionPendingResp} />
-									</View>
-								) : (
-									<SubscriptionPayNotify />
-								)}
+							{/* Notify for pay subscription */}
+							{!basicUserMeResp?.is_active && (
+								<View style={{ maxWidth: '100%' }}>
+									{basicTransactionsSubscriptionPendingResp ? (
+										<View>
+											<SubscriptionStatusPay transaction={basicTransactionsSubscriptionPendingResp} />
+										</View>
+									) : (
+										<SubscriptionPayNotify />
+									)}
+								</View>
+							)}
+
+							<View style={{ marginVertical: 15, marginHorizontal: 17, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+								<ThemedText style={{ fontWeight: 500, fontSize: 17 }}>Subscriptions <Text style={{ fontWeight: 400, fontSize: 13 }}>({basicSubscriptionsGetResp?.length})</Text></ThemedText>
+
+								<ThemedText style={{ fontWeight: 500, fontSize: 17 }}>₽ {basicSubscriptionsGetResp?.reduce((sum, sub) => sum + sub.price, 0)} <Text style={{ fontSize: 14, color: "#999", fontWeight: 400 }}>/ month</Text></ThemedText>
 							</View>
-						)}
-					</>
-				}
-			/>
+						</>
+					}
+				/>
+			</GestureHandlerRootView>
 		</SafeAreaView>
 	);
 }

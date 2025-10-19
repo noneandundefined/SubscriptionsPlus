@@ -22,7 +22,7 @@ export function SubscriptionPayNotify() {
 			onPress={() => router.push('/subscription-pay')}
 		>
 			<SafeAreaView style={[styles.content, { marginTop: -20 }]}>
-				<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 60, maxHeight: 60 }} />
+				<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 60, maxHeight: 60, borderRadius: 15 }} />
 
 				<View style={{ width: 1, height: 57, backgroundColor: '#eee', marginHorizontal: 7, marginLeft: 20 }} />
 

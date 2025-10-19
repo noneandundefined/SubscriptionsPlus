@@ -4,7 +4,7 @@ import QRCodePay from '@/components/pay/qrcode-pay';
 import TimerTransaction from '@/components/timer-transaction';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { basicTransactionsSubscriptionGetByXToken, TransactionResponse } from '@/rest/transactionAPI';
+import { basicTransactionsSubscriptionGetByXToken, basicTransactionsSubscriptionWaitCheck, TransactionResponse } from '@/rest/transactionAPI';
 import { useRouter } from 'expo-router';
 import { useSearchParams } from 'expo-router/build/hooks';
 import { useEffect, useState } from 'react';
@@ -22,17 +22,17 @@ export default function SubscriptionPayWaitScreen() {
     const [loading, setLoading] = useState<boolean>(true);
     const [transaction, setTransaction] = useState<TransactionResponse | null>(null);
 
-    useEffect(() => {
-        const handle = async () => {
-            try {
-                const res = await basicTransactionsSubscriptionGetByXToken(params.get('xtoken') ?? '');
-                setTransaction(res);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const getTransaction = async () => {
+        try {
+            const res = await basicTransactionsSubscriptionGetByXToken(params.get('xtoken') ?? '');
+            setTransaction(res);
+        } finally {
+            setLoading(false);
+        }
+    }
 
-        handle();
+    useEffect(() => {
+        getTransaction();
     }, []);
 
     if (loading) {
@@ -73,6 +73,22 @@ export default function SubscriptionPayWaitScreen() {
 
                 <Text style={styles.subtext}>Wait for the payment confirmation</Text>
 
+                {transaction.status !== "paid" && (
+                    <TouchableOpacity
+                        onPress={() => {
+                            basicTransactionsSubscriptionWaitCheck(transaction.plan_id, transaction.x_token);
+                            getTransaction();
+                        }}
+                        style={{ marginTop: 20, backgroundColor: colorScheme === 'dark' ? '#60A5FA' : '#2563EB', padding: 14, borderRadius: 6 }}
+                    >
+                        {loading ? (
+                            <ActivityIndicator size="small" color={colorScheme === 'dark' ? '#fff' : '#000'} />
+                        ) : (
+                            <Text style={{ color: '#fff', fontSize: 15, textAlign: 'center' }}>Click on me when you've paid</Text>
+                        )}
+                    </TouchableOpacity>
+                )}
+
                 <View style={[styles.card, { backgroundColor: colorScheme === 'dark' ? '#18191dff' : '#fff' }]}>
                     <Text style={[styles.cardTitle, { color: colorScheme === 'dark' ? '#7aa4ffff' : '#111827' }]}>SUB PREMIUM</Text>
                     <Text style={styles.cardDescription}>Please pay for your subscription using the provided details to confirm.</Text>
@@ -99,109 +115,114 @@ export default function SubscriptionPayWaitScreen() {
                             </Text>
                         </View>
                     ) : (
-                        <>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                                <TouchableOpacity
-                                    onPress={() => setVarPay('card')}
-                                    style={{
-                                        padding: 30,
-                                        borderWidth: 1,
-                                        borderColor:
-                                            varPay === 'card'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff',
-                                        borderRadius: 6,
-                                    }}
-                                >
-                                    <IconSymbol
-                                        size={30}
-                                        name="credit-card"
-                                        color={
-                                            varPay === 'card'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff'
-                                        }
-                                    />
-                                </TouchableOpacity>
+                        transaction.status === "paid" ? (
+                            <></>
+                        ) : (
+                            <>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
+                                    <TouchableOpacity
+                                        onPress={() => setVarPay('card')}
+                                        style={{
+                                            padding: 30,
+                                            borderWidth: 1,
+                                            borderColor:
+                                                varPay === 'card'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff',
+                                            borderRadius: 6,
+                                        }}
+                                    >
+                                        <IconSymbol
+                                            size={30}
+                                            name="credit-card"
+                                            color={
+                                                varPay === 'card'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff'
+                                            }
+                                        />
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity
-                                    onPress={() => setVarPay('link')}
-                                    style={{
-                                        padding: 30,
-                                        borderWidth: 1,
-                                        borderColor:
-                                            varPay === 'link'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff',
-                                        borderRadius: 6,
-                                    }}
-                                >
-                                    <IconSymbol
-                                        size={30}
-                                        name="link"
-                                        color={
-                                            varPay === 'link'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff'
-                                        }
-                                    />
-                                </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => setVarPay('link')}
+                                        style={{
+                                            padding: 30,
+                                            borderWidth: 1,
+                                            borderColor:
+                                                varPay === 'link'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff',
+                                            borderRadius: 6,
+                                        }}
+                                    >
+                                        <IconSymbol
+                                            size={30}
+                                            name="link"
+                                            color={
+                                                varPay === 'link'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff'
+                                            }
+                                        />
+                                    </TouchableOpacity>
 
-                                <TouchableOpacity
-                                    onPress={() => setVarPay('qr-code')}
-                                    style={{
-                                        padding: 30,
-                                        borderWidth: 1,
-                                        borderColor:
-                                            varPay === 'qr-code'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff',
-                                        borderRadius: 6,
-                                    }}
-                                >
-                                    <IconSymbol
-                                        size={30}
-                                        name="qr-code"
-                                        color={
-                                            varPay === 'qr-code'
-                                                ? colorScheme === 'dark'
-                                                    ? '#fff'
-                                                    : '#000'
-                                                : colorScheme === 'dark'
-                                                    ? '#585858ff'
-                                                    : '#c5c5c5ff'
-                                        }
-                                    />
-                                </TouchableOpacity>
-                            </View>
+                                    <TouchableOpacity
+                                        onPress={() => setVarPay('qr-code')}
+                                        style={{
+                                            padding: 30,
+                                            borderWidth: 1,
+                                            borderColor:
+                                                varPay === 'qr-code'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff',
+                                            borderRadius: 6,
+                                        }}
+                                    >
+                                        <IconSymbol
+                                            size={30}
+                                            name="qr-code"
+                                            color={
+                                                varPay === 'qr-code'
+                                                    ? colorScheme === 'dark'
+                                                        ? '#fff'
+                                                        : '#000'
+                                                    : colorScheme === 'dark'
+                                                        ? '#585858ff'
+                                                        : '#c5c5c5ff'
+                                            }
+                                        />
+                                    </TouchableOpacity>
+                                </View>
 
-                            <View style={{ marginTop: 7 }}>
-                                {varPay === 'card' && <CardPay transaction={transaction} />}
+                                <View style={{ marginTop: 7 }}>
+                                    {varPay === 'card' && <CardPay transaction={transaction} />}
 
-                                {varPay === 'link' && <LinkPay transaction={transaction} />}
+                                    {varPay === 'link' && <LinkPay transaction={transaction} />}
 
-                                {varPay === 'qr-code' && <QRCodePay transaction={transaction} />}
-                            </View></>
+                                    {varPay === 'qr-code' && <QRCodePay transaction={transaction} />}
+                                </View>
+                            </>
+                        )
                     )}
                 </View>
             </ScrollView >

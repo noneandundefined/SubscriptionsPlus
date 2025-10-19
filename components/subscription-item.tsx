@@ -2,13 +2,12 @@ import config from '@/config/client';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useHandleServer } from '@/hooks/use-handle-server';
 import { basicSubscriptionImage, SubscriptionResponse } from '@/rest/subscriptionAPI';
-import SubscriptionService from '@/services/SubscriptionService';
 import { getNextNotifyDays } from '@/utils/DayUtils';
 import { capitalizeFirstLetter } from '@/utils/StringUtils';
-// import { getSubscriptionImage } from '@/utils/SubscriptionImage';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Dimensions, Image, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Modal, StyleSheet, Text, TextInput, ToastAndroid, TouchableOpacity, View } from 'react-native';
+import { Swipeable } from 'react-native-gesture-handler';
 import { ThemedText } from './themed-text';
 import { IconSymbol } from './ui/icon-symbol';
 
@@ -23,10 +22,11 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({ sub, onDelet
 	const router = useRouter();
 	const colorScheme = useColorScheme();
 
-	const [advencedVisible, setAdvencedVisible] = useState<boolean>(false);
+	const [confirmVisible, setConfirmVisible] = useState<boolean>(false);
+	const [confirmSub, setConfirmSub] = useState<string>('');
 
 	const handleEdit = () => {
-		setAdvencedVisible(false);
+		setConfirmVisible(false);
 		router.push({
 			pathname: '/edit',
 			params: {
@@ -44,129 +44,149 @@ export const SubscriptionItem: React.FC<NotificationItemProps> = ({ sub, onDelet
 
 	const { data: basicSubscriptionImageResp } = useHandleServer(['basicSubscriptionImageResp', sub.name], () => basicSubscriptionImage(sub.name))
 
-	const handleDelete = async () => {
-		await SubscriptionService.del(sub.id);
-
-		setAdvencedVisible(false);
-		if (onDelete) onDelete();
-	};
+	const renderRightActions = () => (
+		<TouchableOpacity
+			onPress={() => setConfirmVisible(true)}
+			activeOpacity={0.6}
+			style={{
+				backgroundColor: '#e22d00ff',
+				justifyContent: 'center',
+				alignItems: 'center',
+				width: 50,
+				marginLeft: 10,
+				borderRadius: 12,
+			}}
+		>
+			<IconSymbol name="delete" color="#fff" size={28} />
+		</TouchableOpacity>
+	);
 
 	return (
 		<>
-			<TouchableOpacity
-				activeOpacity={0.7}
-				style={[
-					styles.row,
-					{
-						backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
-						borderWidth: 1,
-						borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
-					},
-				]}
+			<Swipeable
+				renderRightActions={renderRightActions}
+				onSwipeableWillOpen={() => setConfirmVisible(true)}
+				friction={2}
+				containerStyle={{
+					marginVertical: 6,
+					height: 78,
+					marginHorizontal: 10,
+				}}
 			>
-				<View style={styles.row_left}>
-					{basicSubscriptionImageResp ? (
-						<Image
-							source={{ uri: `${config.API_URL}/subs/images/w350?name=${sub.name}` }}
-							style={styles.date_notify}
-						/>
-					) : (
-						<View
-							style={[
-								styles.date_notify,
-								{
-									backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
-									borderWidth: 1,
-									borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
-								},
-							]}
-						>
-							<ThemedText style={styles.date_notify_text}>
-								{getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)
-									? `${getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)}d`
-									: '3d'}
+				<TouchableOpacity
+					activeOpacity={0.6}
+					onPress={handleEdit}
+					style={[
+						styles.row,
+						{
+							backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+							borderWidth: 1,
+							borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+						},
+					]}
+				>
+					<View style={styles.row_left}>
+						{basicSubscriptionImageResp ? (
+							<Image
+								source={{ uri: `${config.API_URL}/subs/images/w350?name=${sub.name}` }}
+								style={styles.date_notify}
+							/>
+						) : (
+							<View
+								style={[
+									styles.date_notify,
+									{
+										backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
+										borderWidth: 1,
+										borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
+									},
+								]}
+							>
+								<ThemedText style={styles.date_notify_text}>
+									{getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)
+										? `${getNextNotifyDays(sub.date_notify_one, sub.date_notify_two, sub.date_notify_three)}d`
+										: '3d'}
+								</ThemedText>
+							</View>
+						)}
+
+						<View>
+							<ThemedText style={{ fontSize: 17, fontWeight: 500 }}>{capitalizeFirstLetter(sub.name)}</ThemedText>
+							<ThemedText style={[styles.text_mini, { marginTop: -1 }]}>
+								{new Date(sub.date_pay).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
 							</ThemedText>
 						</View>
-					)}
+					</View>
 
-					<View>
-						<ThemedText style={{ fontSize: 17 }}>{capitalizeFirstLetter(sub.name)}</ThemedText>
-						<ThemedText style={styles.text_mini}>
-							{new Date(sub.date_pay).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} - {sub.price} RUB.
+					<ThemedText style={{ fontWeight: 500 }}>₽ {sub.price} <Text style={{ fontSize: 13, color: "#999", fontWeight: 400 }}>/ month</Text></ThemedText>
+				</TouchableOpacity>
+			</Swipeable>
+
+			<Modal
+				transparent
+				animationType="fade"
+				visible={confirmVisible}
+				onRequestClose={() => setConfirmVisible(false)}
+			>
+				<View
+					style={{
+						flex: 1,
+						backgroundColor: 'rgba(0,0,0,0.5)',
+						justifyContent: 'center',
+						alignItems: 'center',
+						padding: 20,
+					}}
+				>
+					<View
+						style={{
+							width: '100%',
+							backgroundColor: colorScheme === 'dark' ? '#222' : '#fff',
+							borderRadius: 10,
+							padding: 20,
+						}}
+					>
+						<ThemedText style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>Confirm Subscription Deletion</ThemedText>
+						<ThemedText style={{ marginBottom: 10 }}>
+							Please enter the subscription name to confirm deletion:
 						</ThemedText>
+
+						<TextInput
+							value={confirmSub}
+							onChangeText={setConfirmSub}
+							placeholder={`Write name subscription - ${sub.name}`}
+							placeholderTextColor={colorScheme === 'dark' ? '#9c9c9cff' : '#4d4d4dff'}
+							autoCapitalize="none"
+							style={{
+								borderWidth: 1,
+								borderColor: '#ccc',
+								borderRadius: 5,
+								padding: 10,
+								marginBottom: 20,
+								color: colorScheme === 'dark' ? '#fff' : '#000',
+							}}
+						/>
+
+						<View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 30 }}>
+							<TouchableOpacity onPress={() => {
+								setConfirmSub('');
+								setConfirmVisible(false);
+							}}>
+								<Text style={{ color: colorScheme === 'dark' ? '#c2c2c2ff' : '#4d4d4dff', fontSize: 16 }}>Cancel</Text>
+							</TouchableOpacity>
+
+							<TouchableOpacity onPress={() => {
+								if (confirmSub === sub.name) {
+									setConfirmVisible(false);
+									if (onDelete) onDelete();
+								} else {
+									ToastAndroid.show('Name does not match!', ToastAndroid.SHORT)
+								}
+							}}>
+								<Text style={{ color: '#920e0eff', fontSize: 16 }}>Delete</Text>
+							</TouchableOpacity>
+						</View>
 					</View>
 				</View>
-
-				<TouchableOpacity onPress={() => setAdvencedVisible(true)}>
-					<IconSymbol size={25} name="menu" color={colorScheme === 'dark' ? '#525252ff' : '#b4b4b4ff'} />
-				</TouchableOpacity>
-			</TouchableOpacity>
-
-			<Modal transparent animationType="fade" visible={advencedVisible} onRequestClose={() => setAdvencedVisible(false)}>
-				<TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPressOut={() => setAdvencedVisible(false)}>
-					<View
-						style={[
-							styles.modalContent,
-							{
-								backgroundColor: colorScheme === 'dark' ? '#1d1d1dff' : '#f9f9f9',
-								borderWidth: 1,
-								borderColor: colorScheme === 'dark' ? '#444' : '#dfdfdfff',
-							},
-						]}
-					>
-						<ThemedText style={{ fontSize: 14, marginBottom: 10 }}>Subscription: {capitalizeFirstLetter(sub.name)}</ThemedText>
-
-						<TouchableOpacity
-							onPress={handleEdit}
-							style={[
-								styles.modalButton,
-								{
-									flexDirection: 'row',
-									alignItems: 'center',
-									gap: 10,
-								},
-							]}
-						>
-							<IconSymbol size={25} name="edit" color={colorScheme === 'dark' ? '#fff' : '#000'} />
-
-							<Text
-								style={[
-									styles.modalText,
-									{
-										color: colorScheme === 'dark' ? '#fff' : '#000',
-									},
-								]}
-							>
-								Edit subscription
-							</Text>
-						</TouchableOpacity>
-
-						<TouchableOpacity
-							onPress={handleDelete}
-							style={[
-								styles.modalButton,
-								{
-									flexDirection: 'row',
-									alignItems: 'center',
-									gap: 10,
-								},
-							]}
-						>
-							<IconSymbol size={25} name="delete" color="#c50000ff" />
-
-							<Text
-								style={[
-									styles.modalText,
-									{
-										color: '#c50000ff',
-									},
-								]}
-							>
-								Delete subscription
-							</Text>
-						</TouchableOpacity>
-					</View>
-				</TouchableOpacity>
 			</Modal>
 		</>
 	);
@@ -177,10 +197,8 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		alignItems: 'center',
 		justifyContent: 'space-between',
-		paddingVertical: 20,
+		paddingVertical: 13,
 		paddingHorizontal: 15,
-		margin: 4,
-		marginHorizontal: 10,
 		borderRadius: 25,
 		borderWidth: 1,
 	},
@@ -194,8 +212,8 @@ const styles = StyleSheet.create({
 		color: '#888',
 	},
 	date_notify: {
-		width: 55,
-		height: 55,
+		width: 50,
+		height: 50,
 		alignItems: 'center',
 		justifyContent: 'center',
 		borderRadius: 100,

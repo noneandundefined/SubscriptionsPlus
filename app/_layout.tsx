@@ -1,11 +1,9 @@
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import * as Notifications from 'expo-notifications';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { Platform } from 'react-native';
 import 'react-native-css-interop';
 import 'react-native-reanimated';
 
@@ -17,14 +15,6 @@ export default function RootLayout() {
 	const colorScheme = useColorScheme();
 
 	const [queryClient] = useState(() => new QueryClient());
-
-	if (Platform.OS === 'android') {
-		Notifications.setNotificationChannelAsync('subscriptions', {
-			name: 'Subscription reminders',
-			importance: Notifications.AndroidImportance.HIGH,
-			sound: 'default',
-		});
-	}
 
 	return (
 		<ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
@@ -52,8 +42,9 @@ export default function RootLayout() {
 					<Stack.Screen
 						name="edit"
 						options={{
-							presentation: 'formSheet',
+							presentation: 'modal',
 							headerShown: false,
+							animation: 'slide_from_bottom',
 							contentStyle: {
 								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
 							},
@@ -62,8 +53,9 @@ export default function RootLayout() {
 					<Stack.Screen
 						name="subscription-pay"
 						options={{
-							presentation: 'formSheet',
+							presentation: 'modal',
 							headerShown: false,
+							animation: 'slide_from_bottom',
 							contentStyle: {
 								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
 							},
@@ -72,8 +64,9 @@ export default function RootLayout() {
 					<Stack.Screen
 						name="subscription-pay-wait"
 						options={{
-							presentation: 'formSheet',
+							presentation: 'modal',
 							headerShown: false,
+							animation: 'slide_from_bottom',
 							contentStyle: {
 								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
 							},
@@ -82,8 +75,9 @@ export default function RootLayout() {
 					<Stack.Screen
 						name="transactions"
 						options={{
-							presentation: 'formSheet',
+							presentation: 'modal',
 							headerShown: false,
+							animation: 'slide_from_bottom',
 							contentStyle: {
 								backgroundColor: colorScheme === 'dark' ? '#000' : '#eee',
 							},

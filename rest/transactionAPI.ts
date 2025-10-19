@@ -1,3 +1,4 @@
+import { ToastAndroid } from 'react-native';
 import axiosClient from '.';
 
 const apiPath = '/transactions';
@@ -22,6 +23,11 @@ export const basicTransactionsHistory = async (): Promise<TransactionResponse[]>
 export const basicTransactionsSubscriptionPay = async (plan_id: number): Promise<string> => {
 	const response = await axiosClient.post(`${apiPath}/subscription/pay`, { plan_id });
 	return response.data.message;
+};
+
+export const basicTransactionsSubscriptionWaitCheck = async (plan_id: number, x_token: string) => {
+	const response = await axiosClient.post(`${apiPath}/subscription/status/paid`, { plan_id, x_token });
+	ToastAndroid.show(response.data.message, ToastAndroid.SHORT);
 };
 
 export const basicTransactionsSubscriptionGetById = async (id: number): Promise<TransactionResponse> => {

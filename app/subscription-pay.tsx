@@ -59,7 +59,7 @@ export default function SubscriptionPayScreen() {
 				</View>
 
 				<View style={styles.iconWrap}>
-					<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 75, maxHeight: 75 }} />
+					<Image source={require('@/assets/images/sub-icon-base.png')} style={{ maxWidth: 75, maxHeight: 75, borderRadius: 15 }} />
 				</View>
 
 				<ThemedText style={styles.title}>Never miss a payment{'\n'}with Sub Premium</ThemedText>
